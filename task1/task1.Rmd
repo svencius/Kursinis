@@ -1,0 +1,21 @@
+---
+title: "Graph in r language"
+author: "Simas"
+date: "February 22, 2016"
+output: html_document
+---
+
+The code below shows how to plot a graph in r
+
+Define 2 vectors
+```{r}
+cars <- c(1, 3, 6, 4, 9)
+trucks <- c(2, 5, 4, 5, 12)
+```
+First, graph cars using a y axis that ranges from 0 to 12. Second,
+graph trucks with red dashed line and square points. Lastly,
+create a title with a red, bold/italic font
+```{r}
+plot(cars, type="o", col="blue", ylim=c(0,12))
+lines(trucks, type="o", pch=22, lty=2, col="red")
+title(main="Autos", col.main="red", font.main=4)
