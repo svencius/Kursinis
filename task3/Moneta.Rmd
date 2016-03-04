@@ -1,0 +1,44 @@
+---
+title: "PE_task2"
+author: "Simas"
+date: "March 4, 2016"
+output: html_document
+---
+Moneta. Tarkime metama moneta. Jeigu iškrenta herbas, tai laimite $12$ EUR. Jeigu skaičius, tai pralošiate $10$ EUR. 
+Bus žaidžiama $n$ kartų ir gauti rezultatai sumuojami. 
+Kokia tikimybė jums turėti teigiamą balansą po $n$ kartų? Kokis išlošių pasikliautiniai $95%$ intervalai.
+Ištirkite tikimybes su skirtingais $n$, pvz. $n={1,2,5,10,20,100}$. Kaip atrodo balanso tankis? Kai $n=100$.
+
+Apibrėžiame vektorių su -10 eurų ir 12 eurų išlošiais
+```{r}
+a <- c(-10,12)
+```
+Funkcija skaičiuojanti balansą po n monetos metimų
+```{r}
+balansas <- function(n)
+{
+  sum(sample(a, n, replace = TRUE))
+}
+```
+Tikimybė, kad balansas>0 kai n=1, n=2, n=5, n=10, n=20, n=100; n-metimų skaičius
+```{r}
+mean(replicate(1000, balansas(1))>0) 
+mean(replicate(1000, balansas(2))>0)
+mean(replicate(1000, balansas(5))>0) 
+mean(replicate(1000, balansas(10))>0) 
+mean(replicate(1000, balansas(20))>0) 
+mean(replicate(1000, balansas(100))>0)
+```
+Sukuriame objektą talpinantį 1000 balansų, kur kiekvienas balansas sudarytas po 100 monetos metimų
+```{r}
+simtas <- (replicate(1000, balansas(100)))
+```
+Išbrėžiame balanso tankį kai n = 100
+```{r}
+plot(density(simtas))
+```
+Skaičiuojame pasikliautinuosius balanso intervalus, kai n = 100
+```{r}
+quantile(simtas, 0.025)
+quantile(simtas, 0.975)
+```
