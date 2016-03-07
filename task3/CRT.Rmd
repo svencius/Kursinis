@@ -27,6 +27,7 @@ Išbrėžiame vidurkio tankį
 ```{r}
 plot(density(z))
 ```
+
 ```{r, echo=FALSE}
 plot(density(z))
 ```
