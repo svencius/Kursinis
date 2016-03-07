@@ -27,7 +27,7 @@ Išbrėžiame vidurkio tankį
 ```{r}
 plot(density(z))
 ```
-```{r, echo=FALSE}
+```{r, echo=TRUE}
 plot(density(z))
 ```
 Iš grafiko matome, kad vidurkio tankis turi normalujį skirstinį, o vidurkis artėja į teorinę reikšmę 0.5
