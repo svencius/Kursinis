@@ -1,7 +1,7 @@
 ---
-title: "PE_task2"
+title: "Moneta"
 author: "Simas"
-date: "March 4, 2016"
+date: "March 9, 2016"
 output: html_document
 ---
 Moneta. Tarkime metama moneta. Jeigu iškrenta herbas, tai laimite $12$ EUR. Jeigu skaičius, tai pralošiate $10$ EUR. 
@@ -22,12 +22,8 @@ balansas <- function(n)
 ```
 Tikimybė, kad balansas>0 kai n=1, n=2, n=5, n=10, n=20, n=100; n-metimų skaičius
 ```{r}
-mean(replicate(1000, balansas(1))>0) 
-mean(replicate(1000, balansas(2))>0)
-mean(replicate(1000, balansas(5))>0) 
-mean(replicate(1000, balansas(10))>0) 
-mean(replicate(1000, balansas(20))>0) 
-mean(replicate(1000, balansas(100))>0)
+n <- c(1, 2, 5, 10, 20, 100)
+sapply(n, function(n) mean(replicate(1000, balansas(n))>0))
 ```
 Sukuriame objektą talpinantį 1000 balansų, kur kiekvienas balansas sudarytas po 100 monetos metimų
 ```{r}
