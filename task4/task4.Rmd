@@ -10,7 +10,8 @@ Lygtis reikalinga prekyboms agentams, kad geriau suprastų kokią įtaką skirti
 
 ```{r}
 a <- read.csv2("data.csv", header=TRUE)
-modelis <- lm(a$kaina~a$plotas+a$aukstas+a$garsoIzoliacija+a$silumosLaidumas+a$atstumasIkiPrekybosCentro, data = a)
+modelis <- lm(a$kaina~a$plotas+a$aukstas+a$garsoIzoliacija+a$silumosLaidumas+a$atstumasIkiPrekybosCentro,
+data = a)
 library("car")
 ## tikrinam ar kurie nors stebėjimai yra išskirtys
 outlierTest(modelis)
