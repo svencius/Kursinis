@@ -1,0 +1,73 @@
+---
+title: "task4"
+author: "Simas"
+date: "March 9, 2016"
+output: html_document
+---
+Užduotis. Aplanke task4 yra duomenų failas, kuriame rasite nekilnojamo turto (o tiksliau gyvenaųjų būtų) kainas ir kaikurias jų charakteristikas. 
+Jūsų užduotis atlikti išsamią tiesinę regresiją. 
+Lygtis reikalinga prekyboms agentams, kad geriau suprastų kokią įtaką skirtingos charakteristikos daro galutinei kainai.
+
+```{r}
+a <- read.csv2("data.csv", header=TRUE)
+modelis <- lm(a$kaina~a$plotas+a$aukstas+a$garsoIzoliacija+a$silumosLaidumas+a$atstumasIkiPrekybosCentro, data = a)
+library("car")
+## tikrinam ar kurie nors stebėjimai yra išskirtys
+outlierTest(modelis)
+## 253 ir 254 stebėjimai yra išskirstys, nes jų Bonferonni 
+## p-value<0
+qqPlot(modelis)
+## Iš grafiko galime įsitikinti, kad du stebėjimai yra
+## statistiškai reikšmingos išskirtys, nes nepatenka i 95% 
+## pasikliovimo intervalą
+## Sukuriame objektą iš kurio yra išmestos išskirtys
+a1 <- a[-c(253, 254),]
+## Kuriame modelį jau be išskirčių
+modelis1 <- lm(a1$kaina~a1$plotas+a1$aukstas+a1$garsoIzoliacija+a1$silumosLaidumas+a1$atstumasIkiPrekybosCentro, data = a1)
+summary(modelis1)
+## iš įverčių p-value matome, kad šilumos laidumas ir atstumas 
+## iki prekybos centro yra individualiai nereikšmingi, tačiau 
+## pirmiausiai reikia  patikrinti modelį dėl multikolinerumo
+## prieš pradedant išmetinėti kintamuosius
+vif(modelis1)
+## silumos laidumo ir garso izoliacijos vifai > 10
+cor(a1$garsoIzoliacija, a1$silumosLaidumas)
+## dydžiai yra stipriai koreliuoti, viena iš ju galima tiesiog 
+## pašalinti iš modelio
+## sukuriame du modelius, vieną su šilumos laidumu, 
+## kitą su garso izoliacija
+modelis2 <- lm(a1$kaina~a1$plotas+a1$aukstas+a1$garsoIzoliacija+a1$atstumasIkiPrekybosCentro,data = a1)
+summary(modelis2)$adj.r.squared
+AIC(modelis2)
+BIC(modelis2)
+modelis3 <- lm(a1$kaina~a1$plotas+a1$aukstas+a1$silumosLaidumas+a1$atstumasIkiPrekybosCentro, data = a1)
+summary(modelis3)$adj.r.squared
+AIC(modelis3)
+BIC(modelis3)
+## tiek akaikės tiek švarco kriterijus yra mažesnis 2 modelyje 
+## nei 3, bei ajusted R^2 yra didesnis antrame modelyje nei 
+## trečiame. Tai renkamės antrą modelį
+vif(modelis2)
+## matome kad visų kintamųjų vifai<10 , 
+## multikolinearumo problemos nebėra
+ncvTest(modelis2)
+## paklaidos nera heteroskedastiškos
+durbinWatsonTest(modelis2)
+## H0: paklaidos nėra auotokoreliuotos
+## H1: paklaidos autokoreliuotos
+## p-value>0.05 tai paklaidos nera autokoreliuotos
+summary(modelis2)
+## išmetame nereikšmingą kintamajį - atstumą iki parduotuvės
+modelis4 <- lm(a1$kaina~a1$plotas+a1$aukstas+a1$garsoIzoliacija, data = a1)
+summary(modelis4)
+AIC(modelis4)
+BIC(modelis4)
+## ketvirto modelio tiek akaikės tike švarco kriterijai yra 
+## mažesni nei antro modelio, o ajusted R^2 vienodi. Taip pat 
+## visi kintamieji 4-tame modelyje yra reikškingi.
+## Galutinis modelis yra "modelis4". Taigi plotui padidėjus 
+## vienu kvadratiniu metru buto kaina padidėja 599 eurais, 
+## didėjant aukštui buto kaina didėja 334 eurais (kas aukštą), 
+## o garso izoliacijai padidėjus vienu vienetu 
+## kaina padidėja 581 euru. Laisvasis narys yra 7474 eurai
+```
