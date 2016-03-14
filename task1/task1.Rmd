@@ -19,5 +19,5 @@ create a title with a red, bold/italic font
 plot(cars, type="o", col="blue", ylim=c(0,12))
 lines(trucks, type="o", pch=22, lty=2, col="red")
 title(main="Autos", col.main="red", font.main=4)
-
+```
 The source of r code: http://www.harding.edu/fmccown/r/#linecharts
