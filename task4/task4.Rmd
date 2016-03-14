@@ -10,8 +10,7 @@ Lygtis reikalinga prekyboms agentams, kad geriau suprastų kokią įtaką skirti
 
 ```{r}
 a <- read.csv2("data.csv", header=TRUE)
-modelis <- lm(a$kaina~a$plotas+a$aukstas+a$garsoIzoliacija+a$silumosLaidumas+a$atstumasIkiPrekybosCentro,
-data = a)
+modelis <- lm(a$kaina~a$plotas+a$aukstas+a$garsoIzoliacija+a$silumosLaidumas+a$atstumasIkiPrekybosCentro, data = a)
 library("car")
 ## tikrinam ar kurie nors stebėjimai yra išskirtys
 outlierTest(modelis)
@@ -24,8 +23,7 @@ qqPlot(modelis)
 ## Sukuriame objektą iš kurio yra išmestos išskirtys
 a1 <- a[-c(253, 254),]
 ## Kuriame modelį jau be išskirčių
-modelis1 <- lm(a1$kaina~a1$plotas+a1$aukstas+a1$garsoIzoliacija+a1$silumosLaidumas+a1$atstumasIkiPrekybosCentro,
-data = a1)
+modelis1 <- lm(a1$kaina~a1$plotas+a1$aukstas+a1$garsoIzoliacija+a1$silumosLaidumas+a1$atstumasIkiPrekybosCentro, data = a1)
 summary(modelis1)
 ## iš įverčių p-value matome, kad šilumos laidumas ir atstumas 
 ## iki prekybos centro yra individualiai nereikšmingi, tačiau 
