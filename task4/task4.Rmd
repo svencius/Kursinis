@@ -15,7 +15,7 @@ library("car")
 ## tikrinam ar kurie nors stebėjimai yra išskirtys
 outlierTest(modelis)
 ## 253 ir 254 stebėjimai yra išskirstys, nes jų Bonferonni 
-## p-value<0
+## p-value<0.05
 qqPlot(modelis, id.n=2)
 ## Iš grafiko galime įsitikinti, kad 253 ir 254 stebėjimai yra
 ## statistiškai reikšmingos išskirtys, nes nepatenka i 95% 
