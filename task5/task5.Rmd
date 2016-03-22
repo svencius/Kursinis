@@ -53,7 +53,8 @@ coeftest(modelis4.4,vcov=hccm(modelis4.4))
 ## yra ištaisytas heteroskedastiškusmas. Šią funkciją radau čia:
 ## http://www.r-bloggers.com/heteroscedasticity/ 
 ## (galima pasiskaityti plačiau)
-## Iš šio testo matome, kad interest ir logm1 kintamųjų p-value>0.05, ## jie yra nereikšmingi, juos galime išmesti
+## Iš šio testo matome, kad interest ir logm1 kintamųjų p-value>0.05, 
+## jie yra nereikšmingi, juos galime išmesti
 modelis4.4.4 <- dynlm(a$logm1~d(L(a$logprice), 4)+d(L(a$loggnp), 4))
 ## Taigi galutinis modelis yra "modelis4.4.4"
 ncvTest(modelis4.4.4)
