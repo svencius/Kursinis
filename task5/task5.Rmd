@@ -15,6 +15,7 @@ modelis2 <- dynlm(a$logm1~L(a$logm1, 2)+L(a$logprice, 2)+L(a$loggnp, 2)+L(a$inte
 modelis3 <- dynlm(a$logm1~L(a$logm1, 3)+L(a$logprice, 3)+L(a$loggnp, 3)+L(a$interest,3))
 modelis4 <- dynlm(a$logm1~L(a$logm1, 4)+L(a$logprice, 4)+L(a$loggnp, 4)+L(a$interest,4))
 modelis5 <- dynlm(a$logm1~L(a$logm1, 5)+L(a$logprice, 5)+L(a$loggnp, 5)+L(a$interest,5))
+## Tikrinam modelius dėl multikolinearumo
 vif(modelis1)
 vif(modelis2)
 vif(modelis3)
@@ -56,5 +57,5 @@ coeftest(modelis4.4,vcov=hccm(modelis4.4))
 modelis4.4.4 <- dynlm(a$logm1~d(L(a$logprice), 4)+d(L(a$loggnp), 4))
 ## Taigi galutinis modelis yra "modelis4.4.4"
 ncvTest(modelis4.4.4)
-## Jo paklaidos nėra heteroskedastiškos
+## modelio "modelis4.4.4" paklaidos nėra heteroskedastiškos
 ```
