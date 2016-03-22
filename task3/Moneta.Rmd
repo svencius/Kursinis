@@ -33,7 +33,7 @@ Išbrėžiame balanso tankį kai n = 100
 ```{r}
 plot(density(simtas))
 ```
-Iš grafiko matome, kad balanso tankis panašus į normaliojo skirtstinio tankį
+Iš grafiko matome, kad balanso tankis panašus į normaliojo skirtstinio tankį.
 Skaičiuojame pasikliautinuosius balanso intervalus, kai n = 100
 ```{r}
 quantile(simtas, 0.025)
