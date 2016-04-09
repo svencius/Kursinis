@@ -1,0 +1,49 @@
+---
+title: "task6"
+author: "Simas"
+date: "April 4, 2016"
+output: html_document
+---
+1. Use the Dow Jones index (data set dowjones) to do the following:
+(a) Produce a time plot of the series.
+```{r}
+library(fpp) ## prijungiame biblioteką
+## išbrėžiame duomenis
+plot(dowjones)
+```
+(b) Produce forecasts using the drift method and plot them.
+```{r}
+## genetuojame prognozę 30-čiai metų (drift metodu), kuri
+## yra lygi paskutiniai reikšmei plius vidutinis pokytis 
+forecast <- rwf(dowjones, drift=TRUE, h=30)
+## išbrėžiame prognozę
+plot(forecast, xlab="Time", ylab="Dow Jones")
+```
+(c) Show that the graphed forecasts are identical to extending the line drawn between the first and last observations.
+```{r}
+plot(forecast, xlab="Time", ylab="Dow Jones")
+## paimame pirmo ir paskutinio stebėjimų koordinates
+y1=dowjones[1] 
+y2=dowjones[78] 
+x1=1
+x2=78
+## is lygčių y1=a+bx1 ir y2=a+bx2 suskaičiuojame a ir b
+a=(y1*x2-y2*x1)/(x2-x1) 
+b=(y2-a)/x2 
+## išbrėžiame tiesę einančią per pirmą ir paskutinį
+## stebėjimus
+abline(a,b, col=11)
+## Matome, jog tiesė sutampa su išbrėžta prognoze
+```
+(d) Try some of the other benchmark functions to forecast the same
+data set. Which do you think is best? Why?
+```{r}
+vidurkio <- meanf(dowjones, h=30)
+plot(vidurkio, xlab="Time", ylab="Dow Jones")
+paskutine <- naive(dowjones, h=30) 
+plot(paskutine, xlab="Time", ylab="Dow Jones")
+sezonas <- snaive(dowjones, h=30)
+plot(sezonas, xlab="Time", ylab="Dow Jones")
+```
+Vidurkio metodo prognozė netinka, nes yra per didelis kritimas nuo paskutinės reikšmės (mažai tikėtinas toks kardinalus pokytis). Drift metodas prognozuoja pastovų kilimą, kas irgi yra mažai tikėtina. Naive ir snaive duoda tas pačias prognozes. Taciau snaive toliau visą laiką prognozuoja reikšmę, lygią to sezono paskutiniai reikšmei. Turimi duomenys npanašūs į sezoninius, todėl pasirinkčiau naive metodą, kuris toliau visą laiką prognozuoja tokią pačią reikšmę kokia buvo paskutinė.
+
