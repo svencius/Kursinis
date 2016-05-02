@@ -1,0 +1,42 @@
+---
+title: "task11"
+author: "Simas"
+date: "April 19, 2016"
+output: html_document
+---
+
+1. Use ets() to find the best ETS model for the price of eggs (data set
+eggs). How does this model compare to the one you found in the
+previous lab session?
+
+```{r message=F}
+library(fpp)
+f_ets<-ets(eggs)
+f_ets[11]
+f_ets[13]
+plot(forecast(f_ets, h=50))
+## ets funkcija duoda "ETS(M,N,N)"  prognozę, kuri neturi sezoniškumo ir
+## trendo, alpha didelis todėl prognozė glodi. Tad prognozė yra tiesiog 
+## konstanta
+res_ets<-residuals(f_ets)
+acf(res_ets)
+## liekanos panašios į baltąjį triukšmą. Patikrinam tai su testu
+## Testas su hipoteze H0: pakalidos yra baltasis triukšmas ir 
+## alternatyva, kad nėra
+Box.test(res_ets, fitdf=0, type="Lj")
+## p-value>0.05, H0 priimame, paklaidos yra baltasis triukšmas
+## f- praeitos užduoties prognozė palyginimui (jos liekanos irgi baltasis ## triukšmas)
+f<-holt(eggs, h=100, exponential=TRUE, alpha=0.9, beta=NULL)
+plot(f) 
+## prgnozė glodi su mažėjančiu trendu
+accuracy(f_ets)
+accuracy(f)
+```
+Pagal RMSE vos vos geresnė f prognzė, tačiau žiūrint į kitus parametrus (ME, MAE, MPE, MAPE, MASE) matome, jog vienur nežymiai geresnė viena prognozė kitur kita. Taigi lyginant f_ets ir f prognozes galima teigti, jog jos yra vienodai geros pagal minėtus parametrus. Patikrinkim AIC
+```{r}
+f$model[2]
+f_ets[2]
+```
+Pagal AIC kriterijų, truputį geresnė prognozė f_est, tačiau aš pasirinkčiau f prognozę, nes skirtumas tarp AIC kriterijų labai mažas, o prognozė f atsižvelgia į duomenysi esantį mažėjantį trendą
+
+
