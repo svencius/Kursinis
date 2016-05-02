@@ -1,0 +1,110 @@
+---
+title: "task12"
+author: "Simas"
+date: "April 20, 2016"
+output: html_document
+---
+1. For this exercise, use the monthly Australian short-term overseas visitors
+data, May 1985–April 2005. (Data set: visitors in expsmooth
+package.)
+
+(a) Use ets to find the best model for these data and record the
+training set RMSE. You should find that the best model is
+ETS(M,A,M).
+```{r message=F}
+library(fpp)
+f1 <- ets(visitors)
+f1[13]
+accuracy(f1)
+```
+Ets prognozė yra "ETS(M,Ad,M)" tipo. RMSE=15.07221
+
+(b) We will now check how much larger the one-step RMSE is on
+out-of-sample data using time series cross-validation. The following
+code will compute the result, beginning with four years
+of data in the training set.
+k <- 48 # minimum size for training set
+n <- length(visitors) # Total number of observations
+e <- visitors*NA # Vector to record one-step forecast errors
+for(i in 48:(n-1))
+{
+train <- ts(visitors[1:i],freq=12)
+fit <- ets(train, "MAM", damped=FALSE)
+fc <- forecast(fit,h=1)$mean
+e[i] <- visitors[i+1]-fc
+}
+sqrt(mean(e^2,na.rm=TRUE))
+Check that you understand what the code is doing. Ask if you
+don’t.
+
+```{r}
+k <- 48 # minimum size for training set
+n <- length(visitors) # Total number of observations
+e <- visitors*NA # Vector to record one-step forecast errors
+for(i in 48:(n-1))
+{
+train <- ts(visitors[1:i],freq=12)
+fit <- ets(train, "MAM", damped=FALSE)
+fc <- forecast(fit,h=1)$mean
+e[i] <- visitors[i+1]-fc
+}
+sqrt(mean(e^2,na.rm=TRUE))
+```
+a dalyje gautas RMSE=15.07221, o b dalyje gautas RMSE=18.31503. Taigi, one step RMSE yra 3 vienetasi diddesnis.
+
+(c) What would happen in the above loop if I had set
+train <- visitors[1:i]?
+
+```{r}
+## Jei pakeistume į 
+train1 <- visitors[1:i]
+class(train1)
+## tai "train1" klasė yra numeric, o ne ts
+```
+Ets funkcijos argumentas gali būti: "a numeric vector or time series" (šaltinis: ?ets). Kadangi prie ets funkcijos argumentų yra prirašyta "MAM", tai reiškia kad duomenims taikome metodą su sezoniškumu, todėl šiuo atveju ets funkcija gali priimti tik ts duomenis
+
+(d) Plot e. What do you notice about the error variances? Why
+does this occur?
+
+```{r}
+plot(e)
+plot(visitors)
+```
+Paklaidų skaida didėja. Taip yra, nes bėgant laikui didėja sezoniškumo įtaka (didėja sezoniniai svyravimai)
+
+
+(e) How does this problem bias the comparison of the RMSE values
+from (1a) and (1b)? (Hint: think about the effect of the
+missing values in e.)
+
+a dalyje gautas RMSE=15.07221, o b dalyje gautas RMSE=18.31503
+Atrodo, kad RMSE turėtų būti mažesnis b dalyje, nes ten yra trūkstamų reikšmių (mažiau dėmenų), tačiau b RMSE yra didesnis už a, nes b progzonė buvo atliekama turint mažiau duomenų, todėl paklaidos gavosi didesnės
+
+(f) In practice, we will not know that the best model on the whole
+data set is ETS(M,A,M) until we observe all the data. So a more
+realistic analysis would be to allow ets to select a different
+model each time through the loop. Calculate the RMSE using
+this approach. (Warning: it will take a while as there are a lot
+of models to fit.)
+
+```{r}
+k <- 48 # minimum size for training set
+n <- length(visitors) # Total number of observations
+e <- visitors*NA # Vector to record one-step forecast errors
+for(i in 48:(n-1))
+{
+train <- ts(visitors[1:i],freq=12)
+fit <- ets(train)
+fc <- forecast(fit,h=1)$mean
+e[i] <- visitors[i+1]-fc
+}
+sqrt(mean(e^2,na.rm=TRUE))
+```
+Kai kiekviename žingsnyje ets parenka geriausią modelį prognozei RMSE=18.62526
+
+(g) How does the RMSE computed in (1f) compare to that computed
+in (1b)? Does the re-selection of a model at each step
+make much difference?
+
+b dalyje RMSE=18.31503, o f dalyje gautas RMSE=18.62526
+Prognozės, kai modelis yra parenkamas kiekviename žingsnyje, RMSE yra didesnis nei parinkus iškarto modėlį, kuris žinom, kad tinka duomenims. Tačiau tas skirtumas tarp RMSE gautų b ir f dalyse yra labai mažas
