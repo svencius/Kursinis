@@ -12,7 +12,7 @@ and order of differencing in order to obtain stationary data.
 library(fpp)
 a<-usnetelec
 plot(a)
-## duomenys tirkrai nestacionarūs, turi didėjantį trendą.
+## duomenys tikrai nestacionarūs, turi didėjantį trendą.
 lambda1<-BoxCox.lambda(a) ## randame tinkamą lambda
 a1<-BoxCox(a,lambda1) ## atliekame transformaciją
 plot(a1) 
@@ -32,7 +32,7 @@ kpss.test(a2)
 ```{r}
 b<-usgdp
 plot(b)
-## duomenys tirkrai nestacionarūs, turi didėjantį trendą.
+## duomenys tikrai nestacionarūs, turi didėjantį trendą.
 lambda2<-BoxCox.lambda(b) ## randame tinkamą lambda
 b1<-BoxCox(b,lambda2) ## atliekame transformaciją
 plot(b1) 
@@ -52,7 +52,7 @@ kpss.test(b2)
 ```{r}
 d<-mcopper
 plot(d)
-## duomenys tirkrai nestacionarūs, turi didėjantį trendą.
+## duomenys tikrai nestacionarūs, turi didėjantį trendą.
 lambda3<-BoxCox.lambda(d) ## randame tinkamą lambda
 d1<-BoxCox(d,lambda3) ## atliekame transformaciją
 plot(d1) 
@@ -73,7 +73,7 @@ kpss.test(d2)
 ```{r}
 e<-enplanements
 plot(e)
-## duomenys tirkrai nestacionarūs, turi didėjantį trendą, panašūs į sezoninius
+## duomenys tikrai nestacionarūs, turi didėjantį trendą, panašūs į sezoninius
 lambda4<-BoxCox.lambda(e) ## randame tinkamą lambda
 e1<-BoxCox(e,lambda4) ## atliekame transformaciją
 plot(e1) 
@@ -94,7 +94,7 @@ kpss.test(e2)
 ```{r}
 f<-visitors
 plot(f)
-## duomenys tirkrai nestacionarūs, turi didėjantį trendą, panašūs į sezoninius
+## duomenys tikrai nestacionarūs, turi didėjantį trendą, panašūs į sezoninius
 lambda5<-BoxCox.lambda(f) ## randame tinkamą lambda
 f1<-BoxCox(f,lambda5) ## atliekame transformaciją
 plot(f1) 
