@@ -1,0 +1,87 @@
+---
+title: "task15"
+author: "Simas"
+date: "May 10, 2016"
+output: html_document
+---
+
+1. Choose one of the following seasonal time series: condmilk, hsales,
+uselec
+
+(a) Do the data need transforming? If so, find a suitable transformation.
+
+```{r, message=F}
+library(fpp)
+a<-uselec
+plot(a)
+## Duomenų sklaida skirtingais laiko tarpais yra vienoda, todėl manau, kad box cox 
+## tranformacija nieko naudingo nepadarys. Įsitikinsiu tuo
+lambda1<-BoxCox.lambda(a) ## randame tinkamą lambda
+a1<-BoxCox(a,lambda1) ## atliekame transformaciją
+plot(a1)
+## Lyginant orginalių duomenų grafiką ir tranformuotų, matome, kad reikšmingų pokyčių 
+## boxcox neatliko, todėl naudosiu pradinius duomenis
+```
+
+(b) Are the data stationary? If not, find an appropriate differencing
+which yields stationary data.
+
+```{r}
+plot(a)
+## Duomenys tikrai nėra stacionarūs, nes yra didėjantis trendas bei sezoniškumas
+ns<-nsdiffs(a) ## surandame diferencijavimo eilę
+a1<- diff(a, differences=ns) ## diferencijuojam duomenis
+plot(a1)
+## Duomenys horizontalūs, nėra trendo, todėl panašūs į stacioanarūs.
+## Patikrinkim su testu
+## H0: duomenys stacionarūs
+## H1: duoemenys nėra stacionarūs
+kpss.test(a1)
+## p-value>0.05, H0 priimame. Duomenys stacionarūs
+```
+
+(c) Identify a couple of ARIMA models that might be useful in describing
+the time series. Which of your models is the best according
+to their AIC values?
+
+```{r}
+b<-auto.arima(a1)
+d<-arima(a1, order=c(1,0,0), seasonal=c(1,0,0))
+e<-arima(a1, order=c(1,0,2), seasonal=c(0,0,1))
+AIC(b)
+AIC(d)
+AIC(e)
+##Pagal AIC geriausias modelis "b"
+```
+
+(d) Estimate the parameters of your best model and do diagnostic
+testing on the residuals. Do the residuals resemble white noise?
+If not, try to find another ARIMA model which fits better.
+
+```{r}
+b
+acf(b$res)
+## Iš acf grafiko panašu, kad paklaidos yra baltasis triukšmas.
+## Patikrinkim su testu
+## H0: pakalidos yra baltasis triukšmas ir alternatyva, kad nėra
+Box.test(b$res, type="Lj")
+## p-value>0.05, H0 priimame, paklaidos yra baltasis triukšmas
+```
+
+(e) Forecast the next 24 months of data using your preferred model.
+
+```{r}
+plot(forecast(b, h=24))
+## Prognozė gana įtikinama
+```
+
+(f) Compare the forecasts obtained using ets().
+
+```{r}
+f<-ets(a1)
+plot(forecast(f, h=24))
+accuracy(b)
+accuracy(f)
+```
+
+Iš grafikų matome, kad prgnozės skiriasi labai nežymiai, tačiau RMSE geresnis modelio "b"
