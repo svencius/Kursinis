@@ -40,7 +40,7 @@ cia kur bandau kazkaip paimti tuos paciu 50 univeru kaip ir is times pirmi 50
 sub_times1 <- times2015[c(1:50),c("university_name","world_rank")]
 sub_shanghai1 <- shanghai2015[,c("university_name","world_rank")]
 time_names_vector<-as.vector(sub_times1$university_name)
-row.names(sub_times1)<-timenames_vector
+row.names(sub_times1)<-time_names_vector
 shanghai_names_vector<-as.vector(sub_shanghai1$university_name)
 row.names(sub_shanghai1)<-shanghai_names_vector
 
