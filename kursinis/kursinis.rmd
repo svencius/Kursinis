@@ -1,65 +1,111 @@
 ---
 title: "Kursinis"
 author: "Simas Vencius ir Edgaras Petrauskas"
-date: '2016 m spalis 15 d '
+date: '2016 m spalis 12 d '
 output: pdf_document
 ---
+Is visu triju reitingų imsime pirmus šimtukus, nes po pirmo šimtuko shanghai reitinge prasideda intervalinis rangavimas. Taip pat, times reitinge nuo 200-osios vietos prasideda intervalinis reitingavimas, todėl neišeis išsibrėžti grafikų, kad matytųsi priklausomybė tarp reitingo ir tam tikro parametro.
 
-```{r setup, include=FALSE}
+```{r}
 library(dplyr)
 times<-read.csv("timesData.csv", stringsAsFactors=FALSE)
 shanghai<-read.csv("shanghaiData.csv", stringsAsFactors=FALSE)
 cwur<-read.csv("cwurData.csv", stringsAsFactors=FALSE)
+
 times2015<- times[times$year==2015,]
 shanghai2015<- shanghai[shanghai$year==2015,]
-
 cwur2015<- cwur[cwur$year==2015,]
+
 sub_times <- times2015[c(1:100),]
 sub_shanghai<- shanghai2015[c(1:100),]
 sub_cwur<- cwur2015[c(1:100),]
 ```
 
-cia kur sakiau bandziau paplotinti kiekvieno reitingo citation vs world_rank
-tuos as numeric bandziau nes gali pats pazet kai plotina nors imu tik pirma simtuka ismeta world_rank ant grafiko daugiau nei 200 tik su cwur normaliai viskas gaunasi. Ai ir dar bandziau su publication vs world rank isbrezt
+Kadangi reitingo cwur parametrai yra suranguoti, tą patį padarėme su
+times ir shanghai reitingų citavimo parametru, kad galėtume palyginti grafikus. Rangavimo metodas "first"", nes taip jau turime suranguotus cwur reitingo parametrų duomenis.
 
 ```{r}
+times_cit_rank<-rank((-times2015$citations), ties.method="first")  
+shanghai_cit_rank<-rank((-shanghai2015$hici), ties.method="first")
+
+## Imame pirmą šimtuką
+
+times_cit_rank100<-times_cit_rank[1:100]
+shanghai_cit_rank100<-shanghai_cit_rank[1:100]
+
+## Paverčiam į numeric, kad būtų galima skaičiuoti koreliaciją
+
 sub_times$world_rank<-as.numeric(as.character(sub_times$world_rank))
 sub_shanghai$world_rank<-as.numeric(as.character(sub_shanghai$world_rank))
-           
-plot(sub_times$citations, sub_times$world_rank)
-plot(sub_shanghai$hici, sub_shanghai$world_rank)
-## Reitinge cwur universitetai yra suranguoti pagal citavimą.
-plot(sub_cwur$citations, sub_cwur$world_rank, xlim=c(0,400))
 
+plot(times_cit_rank100, sub_times$world_rank,ylab="Galutinis times reitingas", xlab="Times citavimo reitingas")
+plot(shanghai_cit_rank100, sub_shanghai$world_rank, ylab="Galutinis shanghai reitingas", xlab="Shanghai citavimo reitingas")
+plot(sub_cwur$citations, sub_cwur$world_rank, xlim=c(0,400), ylab="Galutinis cwur reitingas", xlab="Cwur citavimo reitingas")
 
-## Reitinge cwur universitetai yra suranguoti pagal publikacijas
-plot(sub_cwur$publications, sub_cwur$world_rank)
-plot(sub_shanghai$pub, sub_shanghai$world_rank)
+## Stipriausia priklausomybė atrodo shanghai reitinge. Pažiūrim koreliacijas
 
+cor(shanghai_cit_rank100, sub_shanghai$world_rank)
+cor(sub_cwur$citations, sub_cwur$world_rank)
+cor(times_cit_rank100, sub_times$world_rank)
 ```
 
-cia kur bandau kazkaip paimti tuos paciu 50 univeru kaip ir is times pirmi 50
+Koreliacija tarp citavimo reitingo ir galutinio reitingo stipriausia shanghai
+reitinge.
+
+Dabar tikrinsime priklausomybę tarp publikacijų reitingo ir galutinio reitingo.
+Ranguojame shanghai reitingo universitetus pagal publikacijų parametrą ir paimame pirmą šimtuką. Reitingas times, publikacijų kaip atskiro kriterijau nepateikė, todėl lyginsime tik shanghai ir cwur reitingus pagal publikacijas.
+
+```{r}
+shanghai_pub_rank<-rank((-shanghai2015$pub), ties.method=c("first")) 
+shanghai_pub_rank100<-shanghai_pub_rank[1:100]
+
+plot(sub_cwur$publications, sub_cwur$world_rank, ylab="Galutinis cwur reitingas", xlab="Cwur publikacijų reitingas")
+plot(shanghai_pub_rank100, sub_shanghai$world_rank, ylab="Galutinis shanghai reitingas", xlab="Shanghai publikacijų reitingas")
+## Sunku pasakyti kuriame reitinge didesne priklausomybe tarp publikaciju 
+## reitingo ir galutinio reitingo. Paskaičiuojame koreliaciją
+cor(sub_cwur$publications, sub_cwur$world_rank)
+cor(shanghai_pub_rank100, sub_shanghai$world_rank)
+## Didesnė priklausomybė Shanghai reitinge
+```
+
+Dabar imsime is shanghai reitingo pirmus 100 universitetų ir tada imsime tuos pačius universitetus iš times reitingo ir atliksime spearmano testą galutinių reitingų priklausomybei nustatyti. Testo hipotezė:
+
+H0: kintamieji nekoreliuoja
+
+H1: kintamieji koreliuoja
+
+Imame tik pirma 100-tuką, nes kiekviename reitinge yra skirtingas skaičius universitetų, todėl jei imsime didesnį skaičių universitetų, galime kai kurių universitetų kurie bus shanghai reitinge nerasti times reitinge ir atvirkščiai.
 
 ```{r}
 sub_times1 <- times2015[,c("university_name","world_rank")]
 sub_shanghai1 <- shanghai2015[c(1:100),c("university_name","world_rank")]
+## Eilutėms priskiriam vardus pagal universiteto pavadinimą
 time_names_vector<-as.vector(sub_times1$university_name)
 row.names(sub_times1)<-time_names_vector
 shanghai_names_vector<-as.vector(sub_shanghai1$university_name)
 row.names(sub_shanghai1)<-shanghai_names_vector
-
+## Apjungiame į bendrą lentelę
 bendra <- merge(sub_shanghai1,sub_times1, by = "row.names", all = FALSE)
 bendra1 <- bendra[match(rownames(sub_shanghai1), bendra[, "Row.names"]), -1]
 bendra2<-na.omit(bendra1)
 bendra2<-bendra2[,c("world_rank.x", "world_rank.y")]
 colnames(bendra2)<-c("shanghai_world_rank","times_world_rank" )
-
+## Universitetui, kuris pateko į reitingo intervalą 226-250
+## priskiriam reitinga 238, o kuris pateko į 201-225- 213. Universitetai,
+## kurie pateko i reitingų intervalus buvo tik du.
 bendra2[which(bendra2$times_world_rank=="226-250"),"times_world_rank"]=238
 bendra2[which(bendra2$times_world_rank=="201-225"),"times_world_rank"]=213
 
-
+## Paverčiame numeric, kad galėtume atlikti testą
 bendra2$times_world_rank<-as.numeric(as.vector(bendra2$times_world_rank))
 bendra2$shanghai_world_rank<-as.numeric(as.vector(bendra2$shanghai_world_rank))
 cor.test(bendra2$times_world_rank, bendra2$shanghai_world_rank, method = "spearman")
-plot(bendra2$times_world_rank,bendra2$shanghai_world_rank)
+```
+
+H0 atmetame, kintamieji statistiškai reikšmingai koreliuoja.
+
+Priklausomybė tarp reitingų matoma ir grafiškai.
+
+```{r}
+plot(bendra2$times_world_rank,bendra2$shanghai_world_rank, xlab="Galutinis times reitingas", ylab="Galutinis shanghai reitingas")
 ```
