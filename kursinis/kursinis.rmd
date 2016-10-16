@@ -7,11 +7,12 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 library(dplyr)
-times<-read.csv("timesData.csv")
-shanghai<-read.csv("shanghaiData.csv")
-cwur<-read.csv("cwurData.csv")
+times<-read.csv("timesData.csv", stringsAsFactors=FALSE)
+shanghai<-read.csv("shanghaiData.csv", stringsAsFactors=FALSE)
+cwur<-read.csv("cwurData.csv", stringsAsFactors=FALSE)
 times2015<- times[times$year==2015,]
 shanghai2015<- shanghai[shanghai$year==2015,]
+
 cwur2015<- cwur[cwur$year==2015,]
 sub_times <- times2015[c(1:100),]
 sub_shanghai<- shanghai2015[c(1:100),]
@@ -40,19 +41,25 @@ plot(sub_shanghai$pub, sub_shanghai$world_rank)
 cia kur bandau kazkaip paimti tuos paciu 50 univeru kaip ir is times pirmi 50
 
 ```{r}
-sub_times1 <- times2015[c(1:24),c("university_name","world_rank")]
-sub_shanghai1 <- shanghai2015[,c("university_name","world_rank")]
+sub_times1 <- times2015[,c("university_name","world_rank")]
+sub_shanghai1 <- shanghai2015[c(1:100),c("university_name","world_rank")]
 time_names_vector<-as.vector(sub_times1$university_name)
 row.names(sub_times1)<-time_names_vector
 shanghai_names_vector<-as.vector(sub_shanghai1$university_name)
 row.names(sub_shanghai1)<-shanghai_names_vector
 
-bendra <- merge(sub_times1, sub_shanghai1, by = "row.names", all = TRUE)
+bendra <- merge(sub_shanghai1,sub_times1, by = "row.names", all = FALSE)
 bendra1 <- bendra[match(rownames(sub_shanghai1), bendra[, "Row.names"]), -1]
 bendra2<-na.omit(bendra1)
 bendra2<-bendra2[,c("world_rank.x", "world_rank.y")]
-colnames(bendra2)<-c("times_world_rank", "shanghai_world_rank")
+colnames(bendra2)<-c("shanghai_world_rank","times_world_rank" )
+
+bendra2[which(bendra2$times_world_rank=="226-250"),"times_world_rank"]=238
+bendra2[which(bendra2$times_world_rank=="201-225"),"times_world_rank"]=213
+
+
 bendra2$times_world_rank<-as.numeric(as.vector(bendra2$times_world_rank))
 bendra2$shanghai_world_rank<-as.numeric(as.vector(bendra2$shanghai_world_rank))
 cor.test(bendra2$times_world_rank, bendra2$shanghai_world_rank, method = "spearman")
+plot(bendra2$times_world_rank,bendra2$shanghai_world_rank)
 ```
