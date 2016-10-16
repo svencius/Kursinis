@@ -1,6 +1,6 @@
 ---
 title: "Kursinis"
-author: "Simas ir Eddy"
+author: "Simas Vencius ir Edgaras Petrauskas"
 date: '2016 m spalis 15 d '
 output: pdf_document
 ---
@@ -21,32 +21,38 @@ sub_cwur<- cwur2015[c(1:100),]
 cia kur sakiau bandziau paplotinti kiekvieno reitingo citation vs world_rank
 tuos as numeric bandziau nes gali pats pazet kai plotina nors imu tik pirma simtuka ismeta world_rank ant grafiko daugiau nei 200 tik su cwur normaliai viskas gaunasi. Ai ir dar bandziau su publication vs world rank isbrezt
 
-```{r cars}
-## seip
+```{r}
+sub_times$world_rank<-as.numeric(as.character(sub_times$world_rank))
+sub_shanghai$world_rank<-as.numeric(as.character(sub_shanghai$world_rank))
+           
 plot(sub_times$citations, sub_times$world_rank)
-plot(sub_shanghai$hici, sub_times$world_rank)
-plot(sub_cwur$citations, sub_cwur$world_rank)
+plot(sub_shanghai$hici, sub_shanghai$world_rank)
+## Reitinge cwur universitetai yra suranguoti pagal citavimą.
+plot(sub_cwur$citations, sub_cwur$world_rank, xlim=c(0,400))
 
-sub_times$world_rank<-as.numeric(sub_times$world_rank)
-sub_shanghai$world_rank<-as.numeric(sub_shanghai$world_rank)
-plot(sub_cwur$world_rank, sub_cwur$publications)
-plot(sub_shanghai$world_rank, sub_shanghai$pub)
+
+## Reitinge cwur universitetai yra suranguoti pagal publikacijas
+plot(sub_cwur$publications, sub_cwur$world_rank)
+plot(sub_shanghai$pub, sub_shanghai$world_rank)
 
 ```
 
 cia kur bandau kazkaip paimti tuos paciu 50 univeru kaip ir is times pirmi 50
 
 ```{r}
-sub_times1 <- times2015[c(1:50),c("university_name","world_rank")]
+sub_times1 <- times2015[c(1:24),c("university_name","world_rank")]
 sub_shanghai1 <- shanghai2015[,c("university_name","world_rank")]
 time_names_vector<-as.vector(sub_times1$university_name)
 row.names(sub_times1)<-time_names_vector
 shanghai_names_vector<-as.vector(sub_shanghai1$university_name)
 row.names(sub_shanghai1)<-shanghai_names_vector
 
-m <- merge(sub_times1, sub_shanghai1, by = "row.names", all = TRUE)
-m2 <- m[match(rownames(sub_shanghai1), m[, "Row.names"]), -1]
-
-
-
+bendra <- merge(sub_times1, sub_shanghai1, by = "row.names", all = TRUE)
+bendra1 <- bendra[match(rownames(sub_shanghai1), bendra[, "Row.names"]), -1]
+bendra2<-na.omit(bendra1)
+bendra2<-bendra2[,c("world_rank.x", "world_rank.y")]
+colnames(bendra2)<-c("times_world_rank", "shanghai_world_rank")
+bendra2$times_world_rank<-as.numeric(as.vector(bendra2$times_world_rank))
+bendra2$shanghai_world_rank<-as.numeric(as.vector(bendra2$shanghai_world_rank))
+cor.test(bendra2$times_world_rank, bendra2$shanghai_world_rank, method = "spearman")
 ```
