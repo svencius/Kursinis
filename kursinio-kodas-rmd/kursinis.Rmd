@@ -1,0 +1,207 @@
+---
+title: "Kursinis darbas. Universitetų reitingų palyginimas"
+author: "Simas Vencius ir Edgaras Petrauskas, Ekonometrija, 3 kursas"
+date: '2016 m spalis 12 d '
+output: pdf_document
+---
+
+Įvadas
+=====================================
+
+Kiekvienais metais Lietuvoje ir pasaulyje daugybę diskusijų sukelia universitetų reitingai. Egzistuoja šimtai skirtingų nacionalinių ir tarptautinių reitingų sistemų ir sudėtinga suprasti, kodėl skirtingos sistemos kai kurias aukštojo mokslo įstaigas įvertina kardinaliai skirtingai. Visuomenėje ne be reikalo kyla diskusijos dėl universitetų reitingavimo pagrįstumo. Reitingavimas turi ir didelę ekonominę įtaką - geriau reitinguoti universitetai turi geresnes galimybes pritraukti gabesnius studentus ir išlaikyti aukštą mokslo lygį, sulaukti pripažinimo ir didesnių investicijų. Ekonomiškai stiprios šalys dažniausiai turės ir geriausius universitetus.
+
+Šaltinyje https://www.kaggle.com/mylesoneill/world-university-rankings pateikiami trys kiekvienais metais sudaromi skirtingi tarptautiniai universitetų reitingai. __Times Higher Education World University Ranking__ - įkurtas Jungtinėje Karalystėje 2010 metais, __Academic Ranking of World Universities__ (dar žinomas kaip __Shanghai__ reitingas) - įkurtas Kinijoje 2003 metais ir __Center for World University Rankings__ (toliau - __Cwur__) - Saudo Arabijoje 2012 metais. Kiekvieno reitingo duomenys pateikti skirtingose lentelėse. 
+
+Kursiniame darbe nagrinėsime, kokie reitingų panašumai ir ar yra ryškių skirtumų tarp universitetų reitingų ir jei yra, kas juos lemia.  Ar šalys daro įtaką reitingui ir ar didesnės išlaidos mokslui lemia geresnį universiteto reitingą. 
+
+
+Duomenų apžvalga
+=====================================
+
+
+* "timesData.csv" pateikiami 2011-2016 metų duomenys iš Times reitingo:
+    + world_rank - universiteto vieta reitinge. Yra intervalinių rangų ir lygių rangų (pvz. =94 ir 201-250).
+    + university_name - universiteto pavadinimas.
+    + country - šalis.
+    + teaching - mokymo balas.
+    + international - universiteto įvaizdžio tarptautiniame lygmenyje balas.
+    + research - universiteto tyrimų balas.
+    + citations - citavimo balas.
+    + income - pajamų balas.
+    + total_score - galutinis balas, naudojamas galutinio reitingo nustatymui.
+    + num_students - studentų skaičius universitete.
+    + student_staff_ratio - studentų skaičius padalintas iš darbuotojų skaičiaus.
+    + international_students - tarptautinių studentų dalis proccentais.
+    + female_male_ratio - vyrų ir moterų santykis.
+    + year - reitingavimo metai (2011-2016 m.).
+    
+***
+
+* "shanghaiData.csv" pateikiami 2005-2015 metų duomenys iš Shanghai reitingo.
+    + world_rank - universiteto vieta reitinge. Yra intervalinių rangų ir lygių rangų (pvz. 101-152).
+    + university_name - universiteto pavadinimas.
+    + national_rank - universiteto reitingas savoje šalyje.
+    + total_score - galutinis balas, naudojamas galutinio reitingo nustatymui.
+    + alumni - alumni balas, kurį nulemia alumni, gavusių Nobelio premiją arba Fields medalį, skaičius.
+    + award - premijos balas, kurį nulemia įstaigos darbuotojų, gavusių Nobelio premijas fizikos, chemijos, medicinos, ekonomikos ir Fields medalį matematikos srityse, skaičius.
+    + hici - HiCi balas, kurį nulemia citavimų skaičius
+    + ns - N&S balas, kurį nulemia Nature and Science žurnale įtrauktų publikacijų skaičius.
+    + pub - PUB balas, kurį nulemia Science Citation Index-Expanded and Social Science Citation Index įtrauktų publikacijų skaičius.
+    + pcp - PCP balas, kurį nulemia penkių viršutinių parametrų svertiniai balai padalinti iš pilno etato akademikų skaičiaus.
+    + year - reitingavimo metai (2005-2015 m.).
+    
+***
+
+* "cwurData.csv" pateikiami 2012-2015 metų duomenys iš Cwur reitingo.
+    + world_rank - universiteto vieta reitinge.
+    + university_name - universiteto pavadinimas.
+    + country - šalis.
+    + national_rank - universiteto reitingas savoje šalyje.
+    + quality_of_education - švietimo kokybės balas.
+    + alumni_employment - alumni darbo lygio balas.
+    + quality_of_faculty - fakulteto kokybės balas.
+    + publications - publikacijų balas.
+    + influence - įtakos balas.
+    + citations - citavimo balas.
+    + broad_impact - h-index įtakos balas (tik 2014 ir 2015 m. duomenys).
+    + patents - patentų balas.
+    + score - galutinis balas, naudojamas galutinio reitingo nustatymui.
+    + year - reitingavimo metai (2012-2015).
+
+***
+
+Reitingų sandaros grafinė apžvalga
+=====================================
+
+```{r}
+par(mfrow=c(2,2))
+pie_cwur <- c(25, 25, 25, 25)
+pie(pie_cwur, main="Cwur reitingo sandara", col=rainbow(length(pie_cwur)),
+    labels=c("Quality of Education", "Alumni Employment", "Quality of Faculty", "Kita"))
+
+pie_shanghai <- c(10, 20, 20, 20, 20, 10)
+pie(pie_shanghai, main="Shanghai reitingo sandara", col=rainbow(length(pie_shanghai)),
+    labels=c("Alumni", "Award", "HiCi", "N&S", "PUB", "PCP"))
+
+pie_times <- c(30, 30, 30, 10)
+pie(pie_times, main="Times reitingo sandara", col=rainbow(length(pie_times)),
+    labels=c("Teaching", "Research", "Citations", "Kita"))
+```
+
+Iš visų trijų reitingų imsime pirmus šimtukus, nes po pirmo šimtuko Shanghai reitinge prasideda intervalinis rangavimas. Taip pat ir Times reitinge nuo 200-osios vietos prasideda intervalinis reitingavimas, todėl negalima išsibrėžti grafikų, kad matytųsi priklausomybė tarp reitingo ir tam tikro parametro.
+
+```{r, warning=FALSE, message=FALSE, echo=FALSE}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+times <- read.csv("timesData.csv", stringsAsFactors=FALSE)
+shanghai <- read.csv("shanghaiData.csv", stringsAsFactors=FALSE)
+cwur <- read.csv("cwurData.csv", stringsAsFactors=FALSE)
+
+times2015 <- times[times$year==2015,]
+shanghai2015 <- shanghai[shanghai$year==2015,]
+cwur2015 <- cwur[cwur$year==2015,]
+
+sub_times <- times2015[c(1:100),]
+sub_shanghai <- shanghai2015[c(1:100),]
+sub_cwur <- cwur2015[c(1:100),]
+```
+
+### Times, Shanghai ir Cwur reitingai atitinkamai (2015 m.):  
+
+```{r, echo=FALSE}
+kable(head(times2015))
+kable(head(shanghai2015))
+kable(head(cwur2015))
+```
+
+Pažymėtina, jog reitingai parametrus vertina skirtingais metodais. Times ir Shanghai parametrai įvertinti šimtabalėje skalėje, o Cwur reitinge kiekvienas parametras yra suranguotas.  
+Kadangi reitingo Cwur parametrai yra suranguoti, tas pats daroma su
+Times ir Shanghai reitingų citavimo parametrais, kad būtų galima palyginti grafikus. Rangavimo metodas "first", nes taip jau yra suranguoti Cwur reitingo parametrų duomenys.
+
+```{r}
+times_cit_rank <- rank((-times2015$citations), ties.method="first")  
+shanghai_cit_rank <- rank((-shanghai2015$hici), ties.method="first")
+
+# Imame pirmą šimtuką
+
+times_cit_rank100 <- times_cit_rank[1:100]
+shanghai_cit_rank100 <- shanghai_cit_rank[1:100]
+
+# Paverčiam į numeric, kad būtų galima skaičiuoti koreliaciją
+
+sub_times$world_rank <- as.numeric(as.character(sub_times$world_rank))
+sub_shanghai$world_rank <- as.numeric(as.character(sub_shanghai$world_rank))
+
+par(mfrow=c(2,2))
+plot(times_cit_rank100, sub_times$world_rank,ylab="Galutinis Times reitingas", xlab="Times citavimo reitingas")
+plot(shanghai_cit_rank100, sub_shanghai$world_rank, ylab="Galutinis Shanghai reitingas", xlab="Shanghai citavimo reitingas")
+plot(sub_cwur$citations, sub_cwur$world_rank, xlim=c(0,400), ylab="Galutinis Cwur reitingas", xlab="Cwur citavimo reitingas")
+```
+
+Stipriausia priklausomybė atrodo Shanghai reitinge. Žiūrime koreliacijas:
+
+```{r}
+cor(shanghai_cit_rank100, sub_shanghai$world_rank)
+cor(sub_cwur$citations, sub_cwur$world_rank)
+cor(times_cit_rank100, sub_times$world_rank)
+```
+
+Koreliacija tarp citavimo reitingo ir galutinio reitingo stipriausia Shanghai reitinge.
+
+Dabar tikrinsime priklausomybę tarp publikacijų reitingo ir galutinio reitingo.
+Ranguojame Shanghai reitingo universitetus pagal publikacijų parametrą ir paimame pirmą šimtuką. Times reitingas publikacijų kaip atskiro kriterijaus nepateikė, todėl pagal publikacijas lyginsime tik Shanghai ir Cwur reitingus.
+
+```{r}
+shanghai_pub_rank <- rank((-shanghai2015$pub), ties.method=c("first")) 
+shanghai_pub_rank100 <- shanghai_pub_rank[1:100]
+
+par(mfrow=c(1,2))
+plot(sub_cwur$publications, sub_cwur$world_rank, ylab="Galutinis cwur reitingas", xlab="Cwur publikacijų reitingas")
+plot(shanghai_pub_rank100, sub_shanghai$world_rank, ylab="Galutinis shanghai reitingas", xlab="Shanghai publikacijų reitingas")
+# Sunku pasakyti, kuriame reitinge didesnė priklausomybė tarp publikacijų  reitingo ir galutinio reitingo. Paskaičiuojame koreliaciją
+cor(sub_cwur$publications, sub_cwur$world_rank)
+cor(shanghai_pub_rank100, sub_shanghai$world_rank)
+# Didesnė priklausomybė Shanghai reitinge
+```
+
+Imame Shanghai reitingo pirmus 100 universitetų ir išrenkame tuos pačius universitetus iš Times reitingo bei atliekame Spearmano testą galutinių reitingų priklausomybei nustatyti. Testo hipotezė:
+
+H0: kintamieji nekoreliuoja
+
+H1: kintamieji koreliuoja
+
+Imame tik pirmą 100-tuką, nes kiekviename reitinge yra skirtingas skaičius universitetų, todėl jei imsime didesnį jų skaičių , galime kai kurių universitetų iš Shanghai reitingo nerasti Times reitinge ir atvirkščiai.
+
+```{r}
+sub_times1 <- times2015[,c("university_name","world_rank")]
+sub_shanghai1 <- shanghai2015[c(1:100),c("university_name","world_rank")]
+# Eilutėms priskiriami vardai pagal universiteto pavadinimą
+time_names_vector <- as.vector(sub_times1$university_name)
+row.names(sub_times1) <- time_names_vector
+shanghai_names_vector <- as.vector(sub_shanghai1$university_name)
+row.names(sub_shanghai1) <- shanghai_names_vector
+# Sujungiama į bendrą lentelę
+bendra <- merge(sub_shanghai1,sub_times1, by = "row.names", all = FALSE)
+bendra1 <- bendra[match(rownames(sub_shanghai1), bendra[, "Row.names"]), -1]
+bendra2 <- na.omit(bendra1)
+bendra2 <- bendra2[,c("world_rank.x", "world_rank.y")]
+colnames(bendra2) <- c("shanghai_world_rank","times_world_rank")
+# Universitetui, kuris pateko į reitingo intervalą 226-250 priskiriamas reitingas 238, o kuris pateko į 201-225- 213. Universitetai, kurie pateko i reitingų intervalus buvo tik du.
+bendra2[which(bendra2$times_world_rank=="226-250"),"times_world_rank"]=238
+bendra2[which(bendra2$times_world_rank=="201-225"),"times_world_rank"]=213
+
+# Paverčiame numeric, kad būtų galima atlikti testą
+bendra2$times_world_rank <- as.numeric(as.vector(bendra2$times_world_rank))
+bendra2$shanghai_world_rank <- as.numeric(as.vector(bendra2$shanghai_world_rank))
+cor.test(bendra2$times_world_rank, bendra2$shanghai_world_rank, method = "spearman")
+```
+
+H0 atmetame, kintamieji statistiškai reikšmingai koreliuoja. Vadinasi Shanghai reitingo pirmojo šimtuko universitetai koreliuoja su Time reitingo tais pačiais universitetais. 
+
+Priklausomybė tarp reitingų matoma ir grafiškai.
+
+```{r}
+plot(bendra2$times_world_rank,bendra2$shanghai_world_rank, xlab="Galutinis Times reitingas", ylab="Galutinis Shanghai reitingas")
+```
